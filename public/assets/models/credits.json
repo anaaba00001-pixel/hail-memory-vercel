@@ -1,0 +1,82 @@
+[
+  {
+    "file": "mubkhara_arabic.glb",
+    "original_bytes": 2923656,
+    "web_bytes": 890056,
+    "author": "ksa2030 (https://sketchfab.com/ksa2030)",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "source": "https://sketchfab.com/3d-models/mubkhara-arabic-3c37a09703a4486f9068fa6808150fdc",
+    "title": "mubkhara Arabic",
+    "modifications": "Texture images resized to at most 1024px; opaque images recompressed as JPEG quality 92. Geometry unchanged."
+  },
+  {
+    "file": "teapot.glb",
+    "original_bytes": 9831816,
+    "web_bytes": 582164,
+    "author": "ksa2030 (https://sketchfab.com/ksa2030)",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "source": "https://sketchfab.com/3d-models/teapot-2218240dae8e4e8dba9f51c0cc78301c",
+    "title": "Teapot",
+    "modifications": "Texture images resized to at most 1024px; opaque images recompressed as JPEG quality 92. Geometry unchanged."
+  },
+  {
+    "file": "decorative_item.glb",
+    "original_bytes": 33547272,
+    "web_bytes": 4706336,
+    "author": "Tamer Qarrain (https://sketchfab.com/tamerq)",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "source": "https://sketchfab.com/3d-models/decorative-item-6959dfcf22064b0baacec06374ed529f",
+    "title": "Decorative Item",
+    "modifications": "Texture images resized to at most 1024px; opaque images recompressed as JPEG quality 92. Geometry unchanged."
+  },
+  {
+    "file": "arabic_coffee_cup.glb",
+    "original_bytes": 6843632,
+    "web_bytes": 411668,
+    "author": "Fahd Alatwi (https://sketchfab.com/ksa2030)",
+    "license": "CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)",
+    "source": "https://sketchfab.com/3d-models/arabic-coffee-cup-47b8ad04eb4c4243aa9a8379e9719a99",
+    "title": "Arabic coffee cup",
+    "modifications": "Texture images resized to at most 1024px; opaque images recompressed as JPEG quality 92. Geometry unchanged."
+  },
+  {
+    "file": "mortar_and_pestle.glb",
+    "original_bytes": 6525768,
+    "web_bytes": 708472,
+    "author": "Fahd Alatwi (https://sketchfab.com/ksa2030)",
+    "license": "CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)",
+    "source": "https://sketchfab.com/3d-models/mortar-and-pestle-748f445213144d16b02e2e5bac044d15",
+    "title": "Mortar and pestle",
+    "modifications": "Texture images resized to at most 1024px; opaque images recompressed as JPEG quality 92. Geometry unchanged."
+  },
+  {
+    "file": "arabic_sword.glb",
+    "original_bytes": 6883380,
+    "web_bytes": 650468,
+    "author": "ksa2030 (https://sketchfab.com/ksa2030)",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "source": "https://sketchfab.com/3d-models/arabic-sword-7c81e1ac5a55446cafa39b3c628361db",
+    "title": "Arabic sword",
+    "modifications": "Texture images resized to at most 1024px; opaque images recompressed as JPEG quality 92. Geometry unchanged."
+  },
+  {
+    "file": "sahn_muftih_low_poly.glb",
+    "original_bytes": 9655696,
+    "web_bytes": 638220,
+    "author": "Fahd Alatwi (https://sketchfab.com/ksa2030)",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "source": "https://sketchfab.com/3d-models/sahn-muftih-low-poly-cbaa4323d8c94f678618d14067ddd010",
+    "title": "sahn muftih Low Poly",
+    "modifications": "Texture images resized to at most 1024px; opaque images recompressed as JPEG quality 92. Geometry unchanged."
+  },
+  {
+    "file": "teapot-second.glb",
+    "original_bytes": 10229160,
+    "web_bytes": 750644,
+    "author": "Fahd Alatwi (https://sketchfab.com/ksa2030)",
+    "license": "CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)",
+    "source": "https://sketchfab.com/3d-models/teapot-aeb865f4918643b88e1ef527cc827b08",
+    "title": "Teapot",
+    "modifications": "Texture images resized to at most 1024px; opaque images recompressed as JPEG quality 92. Geometry unchanged."
+  }
+]

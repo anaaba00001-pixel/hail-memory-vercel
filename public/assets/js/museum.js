@@ -41,7 +41,7 @@ async function select(index){
  for(const key of ['title','subtitle','category','material','description','provenance'])$('item-'+key).textContent=item[key];
  $('position').textContent=`${String(current+1).padStart(2,'0')} / ${String(exhibits.length).padStart(2,'0')}`;
  $('item-number').textContent=`المقتنى ${String(current+1).padStart(2,'0')}`;$('item-count').textContent=`${ar.format(current+1)} من ${ar.format(exhibits.length)}`;
- $('model-credit').textContent='تصميم: '+item.author;$('model-source').href=item.source;$('model-license').href=item.licenseUrl;$('model-license').textContent=item.license;$('model-modifications').textContent=item.modifications;
+ $('model-credit').textContent='تصميم: '+item.author;$('model-source').href=item.source;const license=$('model-license');license.textContent=item.license;if(item.licenseUrl){license.href=item.licenseUrl;license.removeAttribute('aria-disabled');}else{license.removeAttribute('href');license.setAttribute('aria-disabled','true');}$('model-modifications').textContent=item.modifications;
  [...$('collection').children].forEach((b,i)=>b.setAttribute('aria-pressed',String(i===current)));
  $('announcement').textContent=`${item.title}، ${current+1} من ${exhibits.length}`;
  canvas.setAttribute('aria-label',`${item.title}. اسحب للدوران، واستخدم أزرار التقريب.`);

@@ -3,6 +3,7 @@ import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { OrbitControls } from '../vendor/OrbitControls.js';
 import { RoomEnvironment } from '../vendor/RoomEnvironment.js';
 import { exhibits } from './exhibits.js';
+import './places.js';
 
 const $=id=>document.getElementById(id),canvas=$('viewer');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');

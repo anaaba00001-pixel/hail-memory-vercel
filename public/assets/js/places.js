@@ -133,7 +133,7 @@ if (tripForm) {
         const title = document.createElement('h3'); title.textContent = stop.name;
         const reason = document.createElement('p'); reason.textContent = stop.reason;
         const meta = document.createElement('p'); meta.className = 'stop-meta'; meta.textContent = `${stop.area} · ${stop.duration_minutes} دقيقة · نحو ${money.format(stop.estimated_cost)}`;
-        const map = document.createElement('a'); map.className = 'map-link'; map.target = '_blank'; map.rel = 'noopener'; map.textContent = 'افتح في الخريطة ↗'; map.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${stop.name} ${stop.area}`)}`;
+        const map = document.createElement('a'); map.className = 'map-link'; map.target = '_blank'; map.rel = 'noopener'; map.textContent = 'افتح في Google Maps ↗'; const query = Number.isFinite(stop.lat) && Number.isFinite(stop.lon) ? `${stop.lat},${stop.lon}` : `${stop.name} ${stop.area}`; map.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
         copy.append(type, title, reason, meta, map); article.append(number, copy); stops.append(article);
       });
       status.textContent = '';

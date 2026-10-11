@@ -132,7 +132,7 @@ if (tripForm) {
         const type = document.createElement('span'); type.className = 'place-type'; type.textContent = stop.type;
         const title = document.createElement('h3'); title.textContent = stop.name;
         const reason = document.createElement('p'); reason.textContent = stop.reason;
-        const meta = document.createElement('p'); meta.className = 'stop-meta'; meta.textContent = `${stop.area} · ${stop.duration_minutes} دقيقة · نحو ${money.format(stop.estimated_cost)} · أفضل وقت: ${stop.best_time || 'تحقق قبل الزيارة'}`;
+        const meta = document.createElement('p'); meta.className = 'stop-meta'; meta.textContent = `★ ${stop.minimum_rating || 4}+ · ${stop.area} · ${stop.duration_minutes} دقيقة · نحو ${money.format(stop.estimated_cost)} · أفضل وقت: ${stop.best_time || 'تحقق قبل الزيارة'}`;
         const map = document.createElement('a'); map.className = 'map-link'; map.target = '_blank'; map.rel = 'noopener'; map.textContent = 'افتح في Google Maps ↗'; const query = Number.isFinite(stop.lat) && Number.isFinite(stop.lon) ? `${stop.lat},${stop.lon}` : `${stop.name} ${stop.area}`; map.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
         copy.append(type, title, reason, meta, map); article.append(number, copy); stops.append(article);
       });

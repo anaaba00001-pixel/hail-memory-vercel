@@ -1,3 +1,4 @@
+const suppliedRatings={'HAO | هاو':4.4,'مقهى بنشاي':4.4,'سوردز كافيه':4.2,'هاف مليون':4.1,'أجا بارك':4.2,'حديقة السلام':4.4,'حديقة الزيتون':4.3,'منتزه المغواة الترفيهي للاحتفالات':4.2,'متحف حائل الإقليمي':4.4,'مطعم التراثي':4.2,'مطاعم ومطابخ قيصر حائل للأكلات الشعبية':3.7,'مطعم فوال الماقد':3.8,'مطعم القلعة القديمة':4.1};
 const catalog = [
   {name:'قلعة أعيرف',type:'قلعة تاريخية',area:'حائل — لبدة',cost:0,minutes:75,tags:['تاريخ وآثار','تصوير ومناظر جميلة','تجارب عائلية ممتعة'],description:'قلعة طينية مرتفعة تطل على المدينة وتتميز بأبراجها الدفاعية.',bestTime:'قبل الغروب'},
   {name:'قصر القشلة',type:'قصر تاريخي',area:'وسط حائل — المحطة',cost:0,minutes:75,tags:['تاريخ وآثار','تصوير ومناظر جميلة'],description:'مبنى تاريخي من عام 1941م يتميز بساحاته وأبراجه والعمارة النجدية.',bestTime:'الصباح أو العصر'},
@@ -23,7 +24,7 @@ const catalog = [
   {name:'مطاعم ومطابخ قيصر حائل للأكلات الشعبية',type:'أكلات شعبية',area:'حي الزهراء — حائل',cost:55,minutes:75,tags:['أكل محلي','تجارب عائلية ممتعة'],description:'مطعم ومطبخ للأكلات الشعبية المحلية.',bestTime:'الغداء أو العشاء'},
   {name:'مطعم فوال الماقد',type:'إفطار شعبي',area:'مدينة حائل',cost:25,minutes:50,tags:['أكل محلي'],description:'مطعم إفطار لتجربة الفول والأطباق الصباحية.',bestTime:'الصباح'},
   {name:'مطعم القلعة القديمة',type:'مطعم عائلي',area:'حي المنتزه الغربي — حائل',cost:60,minutes:75,tags:['أكل محلي','تجارب عائلية ممتعة'],description:'مطعم عائلي مناسب لإكمال جولة المدينة.',bestTime:'الغداء أو العشاء'}
-];
+].map(place=>({...place,rating:suppliedRatings[place.name]??4}));
 const buckets=new Map();
 let mapCache={expires:0,places:[]};
 const send=(res,status,data)=>{res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','private, no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(data));};
@@ -56,14 +57,14 @@ export default async function handler(req,res){
   let body;try{body=typeof req.body==='string'?JSON.parse(req.body):req.body;}catch{return send(res,400,{error:'صيغة الطلب غير صحيحة.'});}
   const budget=Number(body?.budget),people=Number(body?.people),duration=Number(body?.duration),interests=Array.isArray(body?.interests)?body.interests.map(x=>clean(x,40)).filter(Boolean).slice(0,6):[],notes=clean(body?.notes,240);
   if(!Number.isFinite(budget)||budget<0||budget>10000||!Number.isInteger(people)||people<1||people>20||![2,4,8,16].includes(duration)||!interests.length)return send(res,422,{error:'تحقق من الميزانية والمدة وعدد الأشخاص واختر اهتماماً واحداً على الأقل.'});
-  const live=await mapPlaces(),pool=live.length?[...live,...catalog.filter(local=>!live.some(place=>place.name===local.name))]:catalog;
+  const live=await mapPlaces(),normalize=name=>name.toLowerCase().replace(/[|ـًٌٍَُِّْ'’\s-]/g,''),pool=catalog.filter(place=>place.rating>=4).map(local=>{const localName=normalize(local.name),match=live.find(place=>{const mapName=normalize(place.name);return mapName===localName||(Math.min(mapName.length,localName.length)>5&&(mapName.includes(localName)||localName.includes(mapName)));});return match?{...local,lat:match.lat,lon:match.lon,live:true}:local;});
   const availableMinutes=duration*60,maxStops=duration<=2?2:duration<=4?3:duration<=8?4:5;
   const ranked=pool.map((place,index)=>({...place,score:place.tags.filter(tag=>interests.includes(tag)).length*10+(place.cost*people<=budget?4:-20)+(place.live?3:0)+(index%3)})).sort((a,b)=>b.score-a.score);
   const selected=[];let total=0,used=0;
   for(const place of ranked){const cost=place.cost*people;if(selected.length>=maxStops||used+place.minutes>availableMinutes||total+cost>budget)continue;selected.push(place);total+=cost;used+=place.minutes;}
   for(const place of ranked.filter(x=>x.cost===0)){if(selected.length>=2||selected.some(x=>x.name===place.name)||used+place.minutes>availableMinutes)continue;selected.push(place);used+=place.minutes;}
   if(!selected.length)return send(res,422,{error:'الميزانية أو المدة لا تكفيان للاختيارات الحالية. جرّب زيادة المدة أو اختر الأسواق المجانية.'});
-  const stops=selected.map(place=>({name:place.name,type:place.type,area:place.area,estimated_cost:place.cost*people,duration_minutes:place.minutes,lat:place.lat??null,lon:place.lon??null,best_time:place.bestTime||'تحقق قبل الزيارة',reason:place.description||`يناسب اهتمامك بـ${place.tags.find(tag=>interests.includes(tag))||'اكتشاف حائل'}${notes?'، مع مراعاة طلبك: '+notes:''}.`}));
+  const stops=selected.map(place=>({name:place.name,type:place.type,area:place.area,minimum_rating:place.rating,estimated_cost:place.cost*people,duration_minutes:place.minutes,lat:place.lat??null,lon:place.lon??null,best_time:place.bestTime||'تحقق قبل الزيارة',reason:place.description||`يناسب اهتمامك بـ${place.tags.find(tag=>interests.includes(tag))||'اكتشاف حائل'}${notes?'، مع مراعاة طلبك: '+notes:''}.`}));
   const title=interests.length>1?'جولة متنوعة على جوّك':'جولة '+interests[0];
-  return send(res,200,{plan:{title,intro:`رتبنا لك ${stops.length} محطات تناسب ${people===1?'زيارتك':`مجموعة من ${people} أشخاص`} ضمن ميزانية ${budget} ريال ومدة ${duration} ساعات${live.length?' باستخدام بيانات خريطة حية':''}.`,estimated_total:total,stops,live:live.length>0,tip:'الأسعار وأوقات العمل تقديرية؛ افتح المكان في Google Maps وتحقق قبل الانطلاق.'}});
+  const mapped=pool.some(place=>place.live);return send(res,200,{plan:{title,intro:`رتبنا لك ${stops.length} وجهات مختارة ذات قيمة للزيارة، بتقييم ٤ فأعلى، تناسب ${people===1?'زيارتك':`مجموعة من ${people} أشخاص`} ضمن ميزانية ${budget} ريال ومدة ${duration} ساعات.`,estimated_total:total,stops,live:mapped,tip:'التقييمات والأسعار وأوقات العمل قد تتغير؛ افتح المكان في Google Maps وتحقق قبل الانطلاق.'}});
 }

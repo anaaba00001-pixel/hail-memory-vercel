@@ -1,19 +1,23 @@
 const hailPlaces = [
-  { name: 'مقهى سُيوف', category: 'coffee', type: 'قهوة مختصة', area: 'المنتزه الغربي — مدينة حائل', description: 'خيار لجلسة قهوة مختصة هادئة ضمن جولتك في مدينة حائل.', icon: '☕' },
-  { name: 'محمصة ومقهى أندلس', category: 'coffee', type: 'قهوة ومحمصة', area: 'مدينة حائل', description: 'تجربة محلية لمحبي القهوة المختصة والمحاصيل المتنوعة.', icon: '☕' },
-  { name: 'خطوة جمل', category: 'coffee', type: 'قهوة مختصة', area: 'مدينة حائل', description: 'محطة قهوة بطابع مميز تناسب استراحة خفيفة أثناء الجولة.', icon: '☕' },
-  { name: 'متحف حائل الإقليمي', category: 'museum', type: 'متحف', area: 'مدينة حائل', description: 'ابدأ منه للتعرّف على تاريخ المنطقة وآثارها قبل زيارة معالم حائل.', icon: '🏛️' },
-  { name: 'متحف النايف الأثري', category: 'museum', type: 'متحف تراثي', area: 'منطقة حائل', description: 'متحف خاص يجمع مقتنيات تراثية تحكي تفاصيل الحياة القديمة في حائل.', icon: '🏺' },
-  { name: 'متحف مدينة فيد الأثرية', category: 'museum', type: 'متحف وموقع أثري', area: 'فيد — منطقة حائل', description: 'وجهة تجمع المتحف والآثار المرتبطة بمحطة تاريخية على درب زبيدة.', icon: '🏛️' },
-  { name: 'سوق برزان الشعبي', category: 'market', type: 'سوق شعبي', area: 'حي برزان — مدينة حائل', description: 'تجوّل بين الملابس التراثية والمنتجات المحلية في قلب حائل.', icon: '🧺' },
-  { name: 'سوق حائل الشعبي', category: 'market', type: 'سوق شعبي', area: 'حي برزان — مدينة حائل', description: 'سوق للمنتجات المحلية والحبوب والنباتات المجففة والسلع اليومية.', icon: '🛍️' },
-  { name: 'سوق النساء الجديد', category: 'market', type: 'سوق شعبي', area: 'شمال سوق برزان — مدينة حائل', description: 'مساحة للمصنوعات اليدوية والمنتجات الغذائية والملابس من الأسر المنتجة.', icon: '🧵' },
-  { name: 'قلعة أعيرف', category: 'heritage', type: 'معلم تاريخي', area: 'وسط مدينة حائل', description: 'معلم بارز على قمة جبل يشرف على المدينة، مناسب لمحبي التاريخ والإطلالات.', icon: '🏰' },
-  { name: 'قصر القشلة', category: 'heritage', type: 'قصر تاريخي', area: 'وسط مدينة حائل', description: 'محطة تاريخية مميزة للتعرّف على العمارة المحلية والتقاط الصور.', icon: '🏯' },
-  { name: 'جبل السمراء', category: 'nature', type: 'إطلالة وطبيعة', area: 'شرق مدينة حائل', description: 'وجهة مناسبة لمشاهدة المدينة والاستمتاع بالأجواء المفتوحة وقت الغروب.', icon: '⛰️' },
-  { name: 'منتزه مشار الوطني', category: 'nature', type: 'منتزه طبيعي', area: 'شمال غرب مدينة حائل', description: 'مساحات طبيعية مناسبة للنزهات والجلسات الخارجية مع العائلة والأصدقاء.', icon: '🌳' },
-  { name: 'منتزه المغواة الترفيهي', category: 'family', type: 'ترفيه عائلي', area: 'مدينة حائل', description: 'خيار للعائلات والفعاليات الموسمية وقضاء وقت ممتع في مساحة مفتوحة.', icon: '🎡' },
-  { name: 'ممشى حائل', category: 'family', type: 'مشي وترفيه', area: 'مدينة حائل', description: 'اقتراح خفيف للمشي وتغيير الجو وقضاء وقت ممتع دون برنامج طويل.', icon: '🚶' },
+  { name: 'قلعة أعيرف', category: 'heritage', type: 'قلعة تاريخية', area: 'حائل — لبدة', description: 'قلعة طينية مرتفعة تطل على المدينة، مناسبة للتاريخ والتصوير قبل الغروب.', icon: '🏰', rating: 4.0 },
+  { name: 'قصر القشلة', category: 'heritage', type: 'قصر تاريخي', area: 'وسط حائل — المحطة', description: 'معلم من عام 1941م يتميز بساحاته وأبراجه والعمارة النجدية.', icon: '🏯', rating: 4.0 },
+  { name: 'جبل أم سنمان ونقوش جبة', category: 'heritage', type: 'تراث عالمي', area: 'جُبّة — شمال غرب حائل', description: 'فنون صخرية قديمة ضمن قائمة التراث العالمي لليونسكو.', icon: '🪨', rating: 4.0 },
+  { name: 'مدينة فيد الأثرية', category: 'museum', type: 'مدينة أثرية', area: 'فيد — جنوب شرق حائل', description: 'مدينة ارتبطت بطريق الحج القديم وتضم آثاراً ومعالم معمارية.', icon: '🏛️', rating: 4.0 },
+  { name: 'متحف حائل الإقليمي', category: 'museum', type: 'متحف', area: 'مدينة حائل', description: 'زيارة تعليمية للتعرّف على تاريخ المنطقة وآثارها.', icon: '🏺', rating: 4.4 },
+  { name: 'سوق برزان الشعبي', category: 'market', type: 'سوق شعبي', area: 'حي برزان — حائل', description: 'سوق تراثي للملابس الشعبية والتوابل والعطارة والمنتجات الحرفية.', icon: '🧺', rating: 4.0 },
+  { name: 'أبراج برزان', category: 'market', type: 'تراث وتسوق', area: 'منطقة برزان القديمة — حائل', description: 'جولة تجمع بقايا المعلم التاريخي بالمنطقة التجارية القديمة.', icon: '🛍️', rating: 4.0 },
+  { name: 'HAO | هاو', category: 'coffee', type: 'مقهى', area: 'طريق عقدة — حي صبابة', description: 'جلسة هادئة أو لقاء خفيف مع الأصدقاء.', icon: '☕', rating: 4.4 },
+  { name: 'مقهى بنشاي', category: 'coffee', type: 'قهوة وشاي', area: 'حي البحيرة — حائل', description: 'وجهة للقهوة والشاي والجلسات.', icon: '☕', rating: 4.4 },
+  { name: 'سوردز كافيه', category: 'coffee', type: 'مقهى', area: 'المنتزه الغربي — حائل', description: 'خيار للمشروبات والقهوة ضمن المدينة.', icon: '☕', rating: 4.2 },
+  { name: 'هاف مليون', category: 'coffee', type: 'مقهى', area: 'حي المطار — حائل', description: 'قهوة ومشروبات سريعة بتكلفة اقتصادية نسبياً.', icon: '☕', rating: 4.1 },
+  { name: 'جبال أجا', category: 'nature', type: 'جبال وطبيعة', area: 'غرب مدينة حائل', description: 'تضاريس صخرية مميزة للتنزه والتأمل والتصوير الطبيعي.', icon: '⛰️', rating: 4.0 },
+  { name: 'منتزه مشار الوطني', category: 'nature', type: 'منتزه طبيعي', area: 'شمال غرب مدينة حائل', description: 'أجواء جبلية للنزهات والتصوير والاستمتاع بالهواء الطلق.', icon: '🌳', rating: 4.0 },
+  { name: 'مطل جبل السمراء', category: 'nature', type: 'مطل وإطلالة', area: 'شرق مدينة حائل', description: 'إطلالة بانورامية مميزة لمشاهدة الغروب وتصوير المدينة.', icon: '🌄', rating: 4.0 },
+  { name: 'أجا بارك', category: 'family', type: 'ترفيه عائلي', area: 'مدينة حائل', description: 'وجهة عائلية للألعاب والمطاعم والمقاهي.', icon: '🎡', rating: 4.2 },
+  { name: 'حديقة السلام', category: 'family', type: 'حديقة عامة', area: 'مدينة حائل', description: 'حديقة للمشي والجلوس مع العائلة.', icon: '🌿', rating: 4.4 },
+  { name: 'حديقة الزيتون', category: 'family', type: 'حديقة عامة', area: 'مدينة حائل', description: 'مساحات خضراء مناسبة للنزهات العائلية.', icon: '🌳', rating: 4.3 },
+  { name: 'مطعم التراثي', category: 'food', type: 'مطعم عربي', area: 'طريق الملك عبدالعزيز — حائل', description: 'تجربة طعام عربية بطابع تراثي.', icon: '🍽️', rating: 4.2 },
+  { name: 'مطعم القلعة القديمة', category: 'food', type: 'مطعم عائلي', area: 'حي المنتزه الغربي — حائل', description: 'مطعم عائلي مناسب لإكمال جولة المدينة.', icon: '🍲', rating: 4.1 },
 ];
 
 const stylesheet = document.createElement('link');
@@ -31,7 +35,7 @@ if (root) {
     <div class="guide-intro">
       <p class="eyebrow">ما ودّك تحتار؟</p>
       <h2 id="hail-guide-title">اقتراح سريع</h2>
-      <p>اختر نوع الطلعة، ونقترح لك فورًا مكانًا من حائل يناسب مزاجك.</p>
+      <p>اختر نوع الطلعة، ونقترح لك فورًا وجهة مفيدة من حائل بتقييم ٤ فأعلى.</p>
       <div class="guide-filters" role="group" aria-label="نوع المكان">
         <button type="button" data-category="all" aria-pressed="true">كل الأماكن</button>
         <button type="button" data-category="coffee" aria-pressed="false">قهوة</button>
@@ -40,6 +44,7 @@ if (root) {
         <button type="button" data-category="heritage" aria-pressed="false">معلم تاريخي</button>
         <button type="button" data-category="nature" aria-pressed="false">طبيعة</button>
         <button type="button" data-category="family" aria-pressed="false">عائلي وممتع</button>
+        <button type="button" data-category="food" aria-pressed="false">أكل محلي</button>
       </div>
     </div>
     <article class="place-suggestion" id="place-suggestion" aria-live="polite">
@@ -66,14 +71,14 @@ if (root) {
   let currentName = '';
 
   function showSuggestion() {
-    const available = hailPlaces.filter((place) => category === 'all' || place.category === category);
+    const available = hailPlaces.filter((place) => place.rating >= 4 && (category === 'all' || place.category === category));
     const choices = available.filter((place) => place.name !== currentName);
     const pool = choices.length ? choices : available;
     const place = pool[Math.floor(Math.random() * pool.length)];
     currentName = place.name;
 
     get('place-icon').textContent = place.icon;
-    get('place-type').textContent = `${place.type} في حائل`;
+    get('place-type').textContent = `★ ${place.rating.toFixed(1)} · ${place.type} في حائل`;
     get('place-name').textContent = place.name;
     get('place-description').textContent = place.description;
     get('place-area').textContent = `الموقع: ${place.area}`;

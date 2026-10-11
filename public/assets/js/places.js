@@ -15,9 +15,9 @@ stylesheet.rel = 'stylesheet';
 stylesheet.href = new URL('../css/places.css', import.meta.url).href;
 document.head.append(stylesheet);
 
-const community = document.querySelector('.community');
+const root = document.querySelector('#hail-guide-root');
 
-if (community) {
+if (root) {
   const guide = document.createElement('section');
   guide.className = 'hail-guide';
   guide.setAttribute('aria-labelledby', 'hail-guide-title');
@@ -48,7 +48,7 @@ if (community) {
     </article>
     <p class="guide-note">جميع الاقتراحات داخل منطقة حائل. تحقق من أوقات العمل قبل الزيارة.</p>`;
 
-  community.before(guide);
+  root.append(guide);
 
   const get = (id) => guide.querySelector(`#${id}`);
   const card = get('place-suggestion');
@@ -87,4 +87,50 @@ if (community) {
 
   get('suggest-place').addEventListener('click', showSuggestion);
   showSuggestion();
+}
+
+const tripForm = document.querySelector('#trip-form');
+if (tripForm) {
+  const status = document.querySelector('#planner-status');
+  const result = document.querySelector('#trip-result');
+  const submit = tripForm.querySelector('button[type="submit"]');
+  const money = new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR', maximumFractionDigits: 0 });
+
+  tripForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const data = new FormData(tripForm);
+    const interests = data.getAll('interests');
+    if (!interests.length) { status.textContent = 'اختر نوعاً واحداً من التجارب على الأقل.'; return; }
+    submit.disabled = true;
+    submit.textContent = 'جاري ترتيب طلعتك…';
+    status.textContent = 'الذكاء الاصطناعي يجهّز برنامجاً يناسب ميزانيتك ورغباتك…';
+    result.hidden = true;
+    try {
+      const response = await fetch('/api/plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ budget: Number(data.get('budget')), duration: Number(data.get('duration')), people: Number(data.get('people')), interests, notes: data.get('notes') }) });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || 'تعذّر إنشاء الاقتراح. حاول مرة أخرى.');
+      const plan = payload.plan;
+      document.querySelector('#trip-title').textContent = plan.title;
+      document.querySelector('#trip-intro').textContent = plan.intro;
+      document.querySelector('#trip-total').textContent = `التكلفة التقديرية: ${money.format(plan.estimated_total)}`;
+      document.querySelector('#trip-tip').textContent = plan.tip;
+      const stops = document.querySelector('#trip-stops');
+      stops.replaceChildren();
+      plan.stops.forEach((stop, index) => {
+        const article = document.createElement('article'); article.className = 'trip-stop';
+        const number = document.createElement('span'); number.className = 'stop-number'; number.textContent = new Intl.NumberFormat('ar-SA').format(index + 1);
+        const copy = document.createElement('div');
+        const type = document.createElement('span'); type.className = 'place-type'; type.textContent = stop.type;
+        const title = document.createElement('h3'); title.textContent = stop.name;
+        const reason = document.createElement('p'); reason.textContent = stop.reason;
+        const meta = document.createElement('p'); meta.className = 'stop-meta'; meta.textContent = `${stop.area} · ${stop.duration_minutes} دقيقة · نحو ${money.format(stop.estimated_cost)}`;
+        const map = document.createElement('a'); map.className = 'map-link'; map.target = '_blank'; map.rel = 'noopener'; map.textContent = 'افتح في الخريطة ↗'; map.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${stop.name} ${stop.area}`)}`;
+        copy.append(type, title, reason, meta, map); article.append(number, copy); stops.append(article);
+      });
+      status.textContent = '';
+      result.hidden = false;
+      result.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    } catch (error) { status.textContent = error.message; }
+    finally { submit.disabled = false; submit.textContent = 'اقترح لي برنامجاً'; }
+  });
 }

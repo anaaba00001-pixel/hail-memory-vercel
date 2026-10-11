@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101a17">
+  <title>وين بتسري | ذاكرة حائل</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="index.html"><span class="brand-mark">ح</span><span>ذاكرة حائل<small>HAIL MEMORY</small></span></a>
+    <nav aria-label="التنقل الرئيسي"><a href="index.html">المتحف</a><a class="active" href="places.html" aria-current="page">وين بتسري</a><a href="contribute.html">ساهم معنا</a></nav>
+    <span class="header-caption">حكايات تبقى.</span>
+  </header>
+  <main class="places-main">
+    <section class="trip-planner" aria-labelledby="planner-title">
+      <div class="planner-heading">
+        <p class="eyebrow">خطّط طلعتك بالذكاء الاصطناعي</p>
+        <h1 id="planner-title">وش ودّك تسوي في حائل؟</h1>
+        <p>حدد ميزانيتك واهتماماتك، ونرتّب لك برنامجاً مقترحاً داخل مدينة حائل.</p>
+      </div>
+      <form id="trip-form" class="planner-form">
+        <div class="planner-fields">
+          <label class="field"><span>الميزانية بالريال *</span><input type="number" name="budget" min="0" max="10000" step="10" value="200" required inputmode="numeric"></label>
+          <label class="field"><span>مدة الطلعة</span><select name="duration"><option value="2">ساعتان</option><option value="4" selected>نصف يوم</option><option value="8">يوم كامل</option><option value="16">يومان</option></select></label>
+          <label class="field"><span>عدد الأشخاص</span><input type="number" name="people" min="1" max="20" value="2" required inputmode="numeric"></label>
+        </div>
+        <fieldset class="interest-picker"><legend>وش جوّك؟ اختر واحداً أو أكثر *</legend>
+          <label><input type="checkbox" name="interests" value="تاريخ وآثار" checked><span>تاريخ وآثار</span></label>
+          <label><input type="checkbox" name="interests" value="أسواق شعبية"><span>أسواق</span></label>
+          <label><input type="checkbox" name="interests" value="قهوة ومقاهي"><span>قهاوي</span></label>
+          <label><input type="checkbox" name="interests" value="طبيعة وتصوير"><span>طبيعة وتصوير</span></label>
+          <label><input type="checkbox" name="interests" value="تجارب عائلية ممتعة"><span>عائلي وممتع</span></label>
+          <label><input type="checkbox" name="interests" value="أكل محلي"><span>أكل محلي</span></label>
+        </fieldset>
+        <label class="field"><span>رغبة إضافية (اختياري)</span><input name="notes" maxlength="240" placeholder="مثلاً: معنا أطفال، أو نفضّل الأماكن الهادئة"></label>
+        <button class="primary planner-submit" type="submit">اقترح لي برنامجاً</button>
+        <p class="planner-disclaimer">الاقتراح مولّد بالذكاء الاصطناعي؛ تحقق من أوقات العمل والأسعار قبل الزيارة.</p>
+      </form>
+      <div id="planner-status" class="notice planner-status" role="status" aria-live="polite"></div>
+      <section id="trip-result" class="trip-result" aria-labelledby="trip-title" hidden>
+        <div class="result-summary"><p class="eyebrow">برنامجك المقترح</p><h2 id="trip-title"></h2><p id="trip-intro"></p><span id="trip-total" class="budget-total"></span></div>
+        <div id="trip-stops" class="trip-stops"></div>
+        <p id="trip-tip" class="trip-tip"></p>
+      </section>
+    </section>
+    <div id="hail-guide-root"></div>
+  </main>
+  <footer>ذاكرة حائل <span>اقتراحات من حائل وبس</span></footer>
+  <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
+  <script type="module" src="assets/js/places.js"></script>
+</body>
+</html>

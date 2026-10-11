@@ -103,7 +103,7 @@ if (tripForm) {
     if (!interests.length) { status.textContent = 'اختر نوعاً واحداً من التجارب على الأقل.'; return; }
     submit.disabled = true;
     submit.textContent = 'جاري ترتيب طلعتك…';
-    status.textContent = 'الذكاء الاصطناعي يجهّز برنامجاً يناسب ميزانيتك ورغباتك…';
+    status.textContent = 'نجهّز برنامجاً يناسب ميزانيتك ورغباتك…';
     result.hidden = true;
     try {
       const response = await fetch('/api/plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ budget: Number(data.get('budget')), duration: Number(data.get('duration')), people: Number(data.get('people')), interests, notes: data.get('notes') }) });

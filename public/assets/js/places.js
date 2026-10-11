@@ -8,6 +8,12 @@ const hailPlaces = [
   { name: 'سوق برزان الشعبي', category: 'market', type: 'سوق شعبي', area: 'حي برزان — مدينة حائل', description: 'تجوّل بين الملابس التراثية والمنتجات المحلية في قلب حائل.', icon: '🧺' },
   { name: 'سوق حائل الشعبي', category: 'market', type: 'سوق شعبي', area: 'حي برزان — مدينة حائل', description: 'سوق للمنتجات المحلية والحبوب والنباتات المجففة والسلع اليومية.', icon: '🛍️' },
   { name: 'سوق النساء الجديد', category: 'market', type: 'سوق شعبي', area: 'شمال سوق برزان — مدينة حائل', description: 'مساحة للمصنوعات اليدوية والمنتجات الغذائية والملابس من الأسر المنتجة.', icon: '🧵' },
+  { name: 'قلعة أعيرف', category: 'heritage', type: 'معلم تاريخي', area: 'وسط مدينة حائل', description: 'معلم بارز على قمة جبل يشرف على المدينة، مناسب لمحبي التاريخ والإطلالات.', icon: '🏰' },
+  { name: 'قصر القشلة', category: 'heritage', type: 'قصر تاريخي', area: 'وسط مدينة حائل', description: 'محطة تاريخية مميزة للتعرّف على العمارة المحلية والتقاط الصور.', icon: '🏯' },
+  { name: 'جبل السمراء', category: 'nature', type: 'إطلالة وطبيعة', area: 'شرق مدينة حائل', description: 'وجهة مناسبة لمشاهدة المدينة والاستمتاع بالأجواء المفتوحة وقت الغروب.', icon: '⛰️' },
+  { name: 'منتزه مشار الوطني', category: 'nature', type: 'منتزه طبيعي', area: 'شمال غرب مدينة حائل', description: 'مساحات طبيعية مناسبة للنزهات والجلسات الخارجية مع العائلة والأصدقاء.', icon: '🌳' },
+  { name: 'منتزه المغواة الترفيهي', category: 'family', type: 'ترفيه عائلي', area: 'مدينة حائل', description: 'خيار للعائلات والفعاليات الموسمية وقضاء وقت ممتع في مساحة مفتوحة.', icon: '🎡' },
+  { name: 'ممشى حائل', category: 'family', type: 'مشي وترفيه', area: 'مدينة حائل', description: 'اقتراح خفيف للمشي وتغيير الجو وقضاء وقت ممتع دون برنامج طويل.', icon: '🚶' },
 ];
 
 const stylesheet = document.createElement('link');
@@ -23,14 +29,17 @@ if (root) {
   guide.setAttribute('aria-labelledby', 'hail-guide-title');
   guide.innerHTML = `
     <div class="guide-intro">
-      <p class="eyebrow">وين نروح اليوم؟</p>
-      <h2 id="hail-guide-title">اقتراحات من حائل وبس</h2>
-      <p>اختر مزاجك، ونقترح لك مكانًا داخل حائل لقهوة هادئة، أو جولة متحفية، أو زيارة سوق شعبي.</p>
+      <p class="eyebrow">ما ودّك تحتار؟</p>
+      <h2 id="hail-guide-title">اقتراح سريع</h2>
+      <p>اختر نوع الطلعة، ونقترح لك فورًا مكانًا من حائل يناسب مزاجك.</p>
       <div class="guide-filters" role="group" aria-label="نوع المكان">
         <button type="button" data-category="all" aria-pressed="true">كل الأماكن</button>
         <button type="button" data-category="coffee" aria-pressed="false">قهوة</button>
         <button type="button" data-category="museum" aria-pressed="false">متحف</button>
         <button type="button" data-category="market" aria-pressed="false">سوق شعبي</button>
+        <button type="button" data-category="heritage" aria-pressed="false">معلم تاريخي</button>
+        <button type="button" data-category="nature" aria-pressed="false">طبيعة</button>
+        <button type="button" data-category="family" aria-pressed="false">عائلي وممتع</button>
       </div>
     </div>
     <article class="place-suggestion" id="place-suggestion" aria-live="polite">

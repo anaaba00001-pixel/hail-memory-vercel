@@ -108,7 +108,17 @@ if (tripForm) {
   const status = document.querySelector('#planner-status');
   const result = document.querySelector('#trip-result');
   const submit = tripForm.querySelector('button[type="submit"]');
+  const intentInput = tripForm.elements.intent;
   const money = new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR', maximumFractionDigits: 0 });
+
+  tripForm.querySelectorAll('.quick-intent').forEach((button) => {
+    button.addEventListener('click', () => {
+      intentInput.value = button.dataset.intent;
+      tripForm.querySelectorAll('.quick-intent').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+      intentInput.focus();
+      document.querySelector('#announcement').textContent = `اخترت: ${button.textContent.trim()}. يمكنك تعديل الطلب أو إرسال الاقتراح.`;
+    });
+  });
 
   tripForm.addEventListener('submit', async (event) => {
     event.preventDefault();

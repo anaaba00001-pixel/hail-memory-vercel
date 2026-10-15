@@ -25,6 +25,35 @@ const catalog = [
   {name:'مطعم فوال الماقد',type:'إفطار شعبي',area:'مدينة حائل',cost:25,minutes:50,tags:['أكل محلي'],description:'مطعم إفطار لتجربة الفول والأطباق الصباحية.',bestTime:'الصباح'},
   {name:'مطعم القلعة القديمة',type:'مطعم عائلي',area:'حي المنتزه الغربي — حائل',cost:60,minutes:75,tags:['أكل محلي','تجارب عائلية ممتعة'],description:'مطعم عائلي مناسب لإكمال جولة المدينة.',bestTime:'الغداء أو العشاء'}
 ].map(place=>({...place,rating:suppliedRatings[place.name]??4}));
+
+// حقول المطابقة أدناه حقائق موثقة من وصف كل مكان، وليست استنتاجات وقت الطلب.
+// غياب الصفة يعني أن معلوماتنا لا تكفي لإثباتها، ولذلك لا يطابق المكان طلباً يشترطها.
+const placeEvidence={
+  'قلعة أعيرف':{categories:['history'],features:['heritage','photography','panorama','outdoor']},
+  'قصر القشلة':{categories:['history'],features:['heritage','photography']},
+  'جبل أم سنمان ونقوش جبة':{categories:['history','nature'],features:['heritage','photography','outdoor']},
+  'مدينة فيد الأثرية':{categories:['history'],features:['heritage','photography','outdoor']},
+  'متحف حائل الإقليمي':{categories:['history','museum'],features:['heritage','educational','indoor','children']},
+  'سوق برزان الشعبي':{categories:['market'],features:['shopping','heritage','local_food']},
+  'أبراج برزان':{categories:['history','market'],features:['heritage','shopping','photography']},
+  'سوق المباخر اليدوية':{categories:['market'],features:['shopping','heritage','handcrafts']},
+  'HAO | هاو':{categories:['cafe'],features:['coffee','quiet','indoor']},
+  'مقهى بنشاي':{categories:['cafe'],features:['coffee','tea']},
+  'سوردز كافيه':{categories:['cafe'],features:['coffee']},
+  'هاف مليون':{categories:['cafe'],features:['coffee','quick','budget_friendly']},
+  'جبال أجا':{categories:['nature'],features:['outdoor','photography','hiking']},
+  'منتزه مشار الوطني':{categories:['nature','park'],features:['outdoor','photography','children','picnic']},
+  'مطل جبل السمراء':{categories:['nature','viewpoint'],features:['outdoor','photography','panorama','sunset','children']},
+  'النفود الكبير':{categories:['nature'],features:['outdoor','photography','desert']},
+  'أجا بارك':{categories:['family','park'],features:['children','games','restaurants','coffee']},
+  'حديقة السلام':{categories:['family','park'],features:['children','outdoor','walking']},
+  'حديقة الزيتون':{categories:['family','park'],features:['children','outdoor','picnic']},
+  'منتزه المغواة الترفيهي للاحتفالات':{categories:['family','events'],features:['events','outdoor']},
+  'مطعم التراثي':{categories:['restaurant'],features:['local_food','heritage','children']},
+  'مطاعم ومطابخ قيصر حائل للأكلات الشعبية':{categories:['restaurant'],features:['local_food','children']},
+  'مطعم فوال الماقد':{categories:['restaurant'],features:['local_food','breakfast','budget_friendly']},
+  'مطعم القلعة القديمة':{categories:['restaurant'],features:['children']}
+};
 const buckets=new Map();
 let mapCache={expires:0,places:[]};
 const send=(res,status,data)=>{res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','private, no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(data));};
@@ -50,36 +79,32 @@ async function mapPlaces(){
   return[];
 }
 
-const interestSignals=[
-  {tag:'تاريخ وآثار',words:['تاريخ','تراث','أثر','آثار','قديم','قلعة','قصر','متحف']},
-  {tag:'أسواق شعبية',words:['سوق','أسواق','تسوق','شعبي','هدايا','حرف']},
-  {tag:'قهوة ومقاهي',words:['قهوة','كوفي','كافيه','مقهى','شاي','جلسة']},
-  {tag:'طبيعة وتصوير',words:['طبيعة','جبل','جبال','صحراء','بر','ممشى','هواء','تنزه']},
-  {tag:'تجارب عائلية ممتعة',words:['عائلة','عائلي','أطفال','طفل','ألعاب','ترفيه']},
-  {tag:'تصوير ومناظر جميلة',words:['تصوير','صور','منظر','مناظر','غروب','إطلالة']},
-  {tag:'أكل محلي',words:['أكل','مطعم','غداء','عشاء','فطور','شعبي','محلي']}
-];
+const categories=['cafe','restaurant','history','museum','market','nature','park','family','viewpoint','events'];
+const features=['quiet','coffee','tea','heritage','photography','panorama','outdoor','educational','indoor','children','shopping','local_food','handcrafts','quick','budget_friendly','hiking','picnic','sunset','desert','games','restaurants','events','walking','breakfast'];
+const constraintLabels={cafe:'مقهى',restaurant:'مطعم',history:'مكان تاريخي',museum:'متحف',market:'سوق',nature:'طبيعة',park:'منتزه',family:'عائلي',viewpoint:'مطل',events:'فعاليات',quiet:'هادئ',coffee:'قهوة',tea:'شاي',heritage:'تراث',photography:'تصوير',panorama:'إطلالة بانورامية',outdoor:'مكان خارجي',educational:'تعليمي',indoor:'مكان داخلي',children:'مناسب للأطفال',shopping:'تسوق',local_food:'أكل محلي',handcrafts:'حرف يدوية',quick:'زيارة سريعة',budget_friendly:'اقتصادي',hiking:'تنزه جبلي',picnic:'نزهة',sunset:'غروب',desert:'صحراء',games:'ألعاب',restaurants:'مطاعم',events:'فعاليات',walking:'مشي',breakfast:'فطور'};
 
-function inferInterests(intent,explicit=[]){
-  const found=new Set(explicit);
-  for(const signal of interestSignals)if(signal.words.some(word=>intent.includes(word)))found.add(signal.tag);
-  return [...found];
-}
-
-async function rankWithAI({intent,budget,people,duration,pool}){
-  if(!process.env.OPENAI_API_KEY)return null;
-  const choices=pool.map((place,index)=>({id:`place_${index}`,name:place.name,type:place.type,area:place.area,cost_per_person:place.cost,duration_minutes:place.minutes,tags:place.tags,description:place.description}));
-  const ids=choices.map(place=>place.id);
-  const schema={type:'object',additionalProperties:false,properties:{title:{type:'string'},intro:{type:'string'},matches:{type:'array',maxItems:5,items:{type:'object',additionalProperties:false,properties:{id:{type:'string',enum:ids},reason:{type:'string'}},required:['id','reason']}}},required:['title','intro','matches']};
+async function understandIntent(intent){
+  if(!process.env.OPENAI_API_KEY)throw new Error('AI_NOT_CONFIGURED');
+  const list=values=>({type:'array',items:{type:'string',enum:values}});
+  const schema={type:'object',additionalProperties:false,properties:{requested_categories:list(categories),required_features:list(features),excluded_categories:list(categories),excluded_features:list(features),unknown_requirements:{type:'array',items:{type:'string'}},is_specific_enough:{type:'boolean'},summary:{type:'string'}},required:['requested_categories','required_features','excluded_categories','excluded_features','unknown_requirements','is_specific_enough','summary']};
   try{
-    const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${process.env.OPENAI_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model:process.env.OPENAI_MODEL||'gpt-6-luna',instructions:'أنت مرشد محلي لمدينة حائل. افهم رغبة الزائر باللهجة أو العربية الفصحى واختر فقط من القائمة المعطاة. رتّب الأنسب أولاً، واكتب عنواناً ومقدمة وسبباً عربياً موجزاً ومخصصاً لكل اختيار. لا تختر معرفاً غير موجود ولا تدّعِ معلومات خارج البيانات.',input:JSON.stringify({visitor_intent:intent,budget_sar:budget,people,duration_hours:duration,available_places:choices}),text:{format:{type:'json_schema',name:'hail_trip_selection',strict:true,schema}}}),signal:AbortSignal.timeout(12000)});
+    const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${process.env.OPENAI_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model:process.env.OPENAI_MODEL||'gpt-6-luna',instructions:'حلل طلب زائر في حائل إلى قيود فقط، ولا ترشح أماكن. المطلوب الصريح مثل هادئ يوضع في required_features، والمنع مثل بدون أسواق يوضع في excluded_categories. لا تستنتج تفضيلات لم يذكرها. إذا احتوى الطلب شرطاً مهماً لا يمثله قاموس التصنيفات والصفات، ضعه نصاً في unknown_requirements. اعتبر الطلب محدداً إذا ذكر نوع مكان أو صفة مطلوبة مفهومة. اكتب summary عربية قصيرة أمينة للطلب.',input:intent,text:{format:{type:'json_schema',name:'hail_trip_constraints',strict:true,schema}}}),signal:AbortSignal.timeout(12000)});
     if(!response.ok)throw new Error(`OpenAI ${response.status}`);
     const data=await response.json();
     const raw=data.output_text||data.output?.flatMap(item=>item.content||[]).find(item=>item.type==='output_text')?.text;
-    const parsed=JSON.parse(raw),seen=new Set();
-    const matches=parsed.matches.filter(match=>ids.includes(match.id)&&!seen.has(match.id)&&(seen.add(match.id),true));
-    return{title:clean(parsed.title,100),intro:clean(parsed.intro,320),matches};
-  }catch(error){console.error('AI trip selection failed',error.name);return null;}
+    return JSON.parse(raw);
+  }catch(error){console.error('AI intent analysis failed',error.name);throw new Error('AI_UNAVAILABLE');}
+}
+
+function matchesConstraints(place,constraints){
+  const evidence=placeEvidence[place.name];
+  if(!evidence)return false;
+  const placeCategories=evidence.categories||[],placeFeatures=evidence.features||[];
+  if(constraints.requested_categories.length&&!constraints.requested_categories.some(value=>placeCategories.includes(value)))return false;
+  if(constraints.required_features.some(value=>!placeFeatures.includes(value)))return false;
+  if(constraints.excluded_categories.some(value=>placeCategories.includes(value)))return false;
+  if(constraints.excluded_features.some(value=>placeFeatures.includes(value)))return false;
+  return true;
 }
 
 export default async function handler(req,res){
@@ -87,19 +112,18 @@ export default async function handler(req,res){
   if(!String(req.headers['content-type']||'').startsWith('application/json'))return send(res,415,{error:'صيغة الطلب غير صحيحة.'});
   const address=String(req.headers['x-forwarded-for']||req.socket?.remoteAddress||'local').split(',')[0].trim(),now=Date.now(),recent=(buckets.get(address)||[]).filter(t=>now-t<60000);if(recent.length>=30)return send(res,429,{error:'طلبات كثيرة. حاول بعد دقيقة.'});recent.push(now);buckets.set(address,recent);
   let body;try{body=typeof req.body==='string'?JSON.parse(req.body):req.body;}catch{return send(res,400,{error:'صيغة الطلب غير صحيحة.'});}
-  const budget=Number(body?.budget),people=Number(body?.people),duration=Number(body?.duration),intent=clean(body?.intent??body?.notes,500),explicit=Array.isArray(body?.interests)?body.interests.map(x=>clean(x,40)).filter(Boolean).slice(0,6):[],interests=inferInterests(intent,explicit);
+  const budget=Number(body?.budget),people=Number(body?.people),duration=Number(body?.duration),intent=clean(body?.intent??body?.notes,500);
   if(!Number.isFinite(budget)||budget<0||budget>10000||!Number.isInteger(people)||people<1||people>20||![2,4,8,16].includes(duration)||intent.length<3)return send(res,422,{error:'اكتب رغبتك وتحقق من الميزانية والمدة وعدد الأشخاص.'});
-  const live=await mapPlaces(),normalize=name=>name.toLowerCase().replace(/[|ـًٌٍَُِّْ'’\s-]/g,''),pool=catalog.filter(place=>place.rating>=4).map(local=>{const localName=normalize(local.name),match=live.find(place=>{const mapName=normalize(place.name);return mapName===localName||(Math.min(mapName.length,localName.length)>5&&(mapName.includes(localName)||localName.includes(mapName)));});return match?{...local,lat:match.lat,lon:match.lon,live:true}:local;});
+  let constraints;try{constraints=await understandIntent(intent);}catch(error){return send(res,503,{error:error.message==='AI_NOT_CONFIGURED'?'خدمة فهم الطلب غير مهيأة حالياً. حاول لاحقاً.':'تعذّر الاتصال بخدمة الذكاء الاصطناعي، لذلك لم نعرض اقتراحات قد لا تطابق طلبك. حاول مرة أخرى.'});}
+  if(!constraints.is_specific_enough)return send(res,422,{error:'نحتاج وصفاً أوضح: اذكر نوع المكان أو الأجواء التي تريدها وما الذي لا تريده.'});
+  if(constraints.unknown_requirements.length)return send(res,200,{plan:{title:'لا تتوفر معلومات كافية',intro:`لا تتوفر لدينا معلومات موثقة عن: ${constraints.unknown_requirements.join('، ')}. لذلك لم نعرض ترشيحات غير مؤكدة.`,estimated_total:0,stops:[],ai_generated:true,suggestion_source:'ai',insufficient_data:true,tip:'جرّب طلباً يعتمد على صفات موثقة مثل نوع المكان، الهدوء، الغروب، الأطفال، التصوير أو الأكل المحلي.'}});
+  const live=await mapPlaces(),normalize=name=>name.toLowerCase().replace(/[|ـًٌٍَُِّْ'’\s-]/g,''),pool=catalog.map(local=>{const localName=normalize(local.name),match=live.find(place=>{const mapName=normalize(place.name);return mapName===localName||(Math.min(mapName.length,localName.length)>5&&(mapName.includes(localName)||localName.includes(mapName)));});return match?{...local,lat:match.lat,lon:match.lon,live:true}:local;});
   const availableMinutes=duration*60,maxStops=duration<=2?2:duration<=4?3:duration<=8?4:5;
-  const ai=await rankWithAI({intent,budget,people,duration,pool}),aiOrder=new Map((ai?.matches||[]).map((match,index)=>[match.id,index]));
-  const ranked=pool.map((place,index)=>({...place,id:`place_${index}`,score:(aiOrder.has(`place_${index}`)?100-aiOrder.get(`place_${index}`)*5:0)+place.tags.filter(tag=>interests.includes(tag)).length*10+(place.cost*people<=budget?4:-20)+(place.live?3:0)+(index%3)})).sort((a,b)=>b.score-a.score);
+  const matched=pool.filter(place=>matchesConstraints(place,constraints)&&place.cost*people<=budget&&place.minutes<=availableMinutes);
   const selected=[];let total=0,used=0;
-  for(const place of ranked){const cost=place.cost*people;if(selected.length>=maxStops||used+place.minutes>availableMinutes||total+cost>budget)continue;selected.push(place);total+=cost;used+=place.minutes;}
-  for(const place of ranked.filter(x=>x.cost===0)){if(selected.length>=2||selected.some(x=>x.name===place.name)||used+place.minutes>availableMinutes)continue;selected.push(place);used+=place.minutes;}
-  if(!selected.length)return send(res,422,{error:'الميزانية أو المدة لا تكفيان للاختيارات الحالية. جرّب زيادة المدة أو اختر الأسواق المجانية.'});
-  const reasons=new Map((ai?.matches||[]).map(match=>[match.id,clean(match.reason,240)]));
-  const stops=selected.map(place=>({name:place.name,type:place.type,area:place.area,minimum_rating:place.rating,estimated_cost:place.cost*people,duration_minutes:place.minutes,lat:place.lat??null,lon:place.lon??null,best_time:place.bestTime||'تحقق قبل الزيارة',reason:reasons.get(place.id)||place.description||`يناسب رغبتك في ${interests[0]||'اكتشاف حائل'}.`}));
-  const title=ai?.title||(interests.length?'جولة على جوّك: '+interests[0]:'جولة مختارة في حائل');
-  const intro=ai?.intro||`رتبنا لك ${stops.length} وجهات من قائمة ذاكرة حائل تناسب طلبك، ضمن ميزانية ${budget} ريال ومدة ${duration} ساعات.`;
-  const mapped=pool.some(place=>place.live);return send(res,200,{plan:{title,intro,estimated_total:total,stops,live:mapped,ai_generated:!!ai,suggestion_source:ai?'ai':'smart_rules',tip:'التقييمات والأسعار وأوقات العمل قد تتغير؛ افتح المكان في Google Maps وتحقق قبل الانطلاق.'}});
+  for(const place of matched){const cost=place.cost*people;if(selected.length>=maxStops||used+place.minutes>availableMinutes||total+cost>budget)continue;selected.push(place);total+=cost;used+=place.minutes;}
+  if(!selected.length)return send(res,200,{plan:{title:'لا يوجد تطابق موثّق',intro:`لا تتوفر لدينا معلومات كافية لترشيح مكان يطابق «${clean(constraints.summary,180)}» ضمن الميزانية والمدة المحددتين.`,estimated_total:0,stops:[],ai_generated:true,suggestion_source:'ai',insufficient_data:true,tip:'لن نعرض مكاناً ما لم تكن صفاته المطلوبة موثقة في بياناتنا.'}});
+  const requiredLabels=[...new Set([...constraints.requested_categories,...constraints.required_features])].map(value=>constraintLabels[value]||value);
+  const stops=selected.map(place=>({name:place.name,type:place.type,area:place.area,minimum_rating:place.rating,estimated_cost:place.cost*people,duration_minutes:place.minutes,lat:place.lat??null,lon:place.lon??null,best_time:place.bestTime||'تحقق قبل الزيارة',reason:`يطابق طلبك بناءً على معلوماتنا الموثقة: ${requiredLabels.join('، ')}.`}));
+  const mapped=pool.some(place=>place.live);return send(res,200,{plan:{title:'أماكن تطابق طلبك',intro:`وجدنا ${stops.length} ${stops.length===1?'مكاناً موثقاً':'أماكن موثقة'} تطابق طلبك دون إضافة اقتراحات غير مؤكدة.`,estimated_total:total,stops,live:mapped,ai_generated:true,suggestion_source:'ai',insufficient_data:false,tip:'التقييمات والأسعار وأوقات العمل قد تتغير؛ افتح المكان في Google Maps وتحقق قبل الانطلاق.'}});
 }

@@ -113,19 +113,22 @@ if (tripForm) {
   tripForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const data = new FormData(tripForm);
-    const interests = data.getAll('interests');
-    if (!interests.length) { status.textContent = 'اختر نوعاً واحداً من التجارب على الأقل.'; return; }
+    const intent = String(data.get('intent') || '').trim();
+    if (intent.length < 3) { status.textContent = 'اكتب لنا وش ودّك تسوي أولاً.'; return; }
     submit.disabled = true;
     submit.textContent = 'جاري ترتيب طلعتك…';
     status.textContent = 'نجهّز برنامجاً يناسب ميزانيتك ورغباتك…';
     result.hidden = true;
     try {
-      const response = await fetch('/api/plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ budget: Number(data.get('budget')), duration: Number(data.get('duration')), people: Number(data.get('people')), interests, notes: data.get('notes') }) });
+      const response = await fetch('/api/plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ budget: Number(data.get('budget')), duration: Number(data.get('duration')), people: Number(data.get('people')), intent }) });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || 'تعذّر إنشاء الاقتراح. حاول مرة أخرى.');
       const plan = payload.plan;
       document.querySelector('#trip-title').textContent = plan.title;
       document.querySelector('#trip-intro').textContent = plan.intro;
+      const source = document.querySelector('#trip-source');
+      source.textContent = plan.ai_generated ? '✦ اقتراح بالذكاء الاصطناعي' : 'اقتراح ذكي من قائمة الأماكن';
+      source.classList.toggle('is-ai', Boolean(plan.ai_generated));
       document.querySelector('#trip-total').textContent = `التكلفة التقديرية: ${money.format(plan.estimated_total)}`;
       document.querySelector('#trip-tip').textContent = plan.tip;
       const stops = document.querySelector('#trip-stops');

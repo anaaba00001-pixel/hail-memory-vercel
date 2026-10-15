@@ -50,21 +50,56 @@ async function mapPlaces(){
   return[];
 }
 
+const interestSignals=[
+  {tag:'تاريخ وآثار',words:['تاريخ','تراث','أثر','آثار','قديم','قلعة','قصر','متحف']},
+  {tag:'أسواق شعبية',words:['سوق','أسواق','تسوق','شعبي','هدايا','حرف']},
+  {tag:'قهوة ومقاهي',words:['قهوة','كوفي','كافيه','مقهى','شاي','جلسة']},
+  {tag:'طبيعة وتصوير',words:['طبيعة','جبل','جبال','صحراء','بر','ممشى','هواء','تنزه']},
+  {tag:'تجارب عائلية ممتعة',words:['عائلة','عائلي','أطفال','طفل','ألعاب','ترفيه']},
+  {tag:'تصوير ومناظر جميلة',words:['تصوير','صور','منظر','مناظر','غروب','إطلالة']},
+  {tag:'أكل محلي',words:['أكل','مطعم','غداء','عشاء','فطور','شعبي','محلي']}
+];
+
+function inferInterests(intent,explicit=[]){
+  const found=new Set(explicit);
+  for(const signal of interestSignals)if(signal.words.some(word=>intent.includes(word)))found.add(signal.tag);
+  return [...found];
+}
+
+async function rankWithAI({intent,budget,people,duration,pool}){
+  if(!process.env.OPENAI_API_KEY)return null;
+  const choices=pool.map((place,index)=>({id:`place_${index}`,name:place.name,type:place.type,area:place.area,cost_per_person:place.cost,duration_minutes:place.minutes,tags:place.tags,description:place.description}));
+  const ids=choices.map(place=>place.id);
+  const schema={type:'object',additionalProperties:false,properties:{title:{type:'string'},intro:{type:'string'},matches:{type:'array',maxItems:5,items:{type:'object',additionalProperties:false,properties:{id:{type:'string',enum:ids},reason:{type:'string'}},required:['id','reason']}}},required:['title','intro','matches']};
+  try{
+    const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${process.env.OPENAI_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model:process.env.OPENAI_MODEL||'gpt-6-luna',instructions:'أنت مرشد محلي لمدينة حائل. افهم رغبة الزائر باللهجة أو العربية الفصحى واختر فقط من القائمة المعطاة. رتّب الأنسب أولاً، واكتب عنواناً ومقدمة وسبباً عربياً موجزاً ومخصصاً لكل اختيار. لا تختر معرفاً غير موجود ولا تدّعِ معلومات خارج البيانات.',input:JSON.stringify({visitor_intent:intent,budget_sar:budget,people,duration_hours:duration,available_places:choices}),text:{format:{type:'json_schema',name:'hail_trip_selection',strict:true,schema}}}),signal:AbortSignal.timeout(12000)});
+    if(!response.ok)throw new Error(`OpenAI ${response.status}`);
+    const data=await response.json();
+    const raw=data.output_text||data.output?.flatMap(item=>item.content||[]).find(item=>item.type==='output_text')?.text;
+    const parsed=JSON.parse(raw),seen=new Set();
+    const matches=parsed.matches.filter(match=>ids.includes(match.id)&&!seen.has(match.id)&&(seen.add(match.id),true));
+    return{title:clean(parsed.title,100),intro:clean(parsed.intro,320),matches};
+  }catch(error){console.error('AI trip selection failed',error.name);return null;}
+}
+
 export default async function handler(req,res){
   if(req.method!=='POST'){res.setHeader('Allow','POST');return send(res,405,{error:'طريقة الطلب غير مسموحة.'});}
   if(!String(req.headers['content-type']||'').startsWith('application/json'))return send(res,415,{error:'صيغة الطلب غير صحيحة.'});
   const address=String(req.headers['x-forwarded-for']||req.socket?.remoteAddress||'local').split(',')[0].trim(),now=Date.now(),recent=(buckets.get(address)||[]).filter(t=>now-t<60000);if(recent.length>=30)return send(res,429,{error:'طلبات كثيرة. حاول بعد دقيقة.'});recent.push(now);buckets.set(address,recent);
   let body;try{body=typeof req.body==='string'?JSON.parse(req.body):req.body;}catch{return send(res,400,{error:'صيغة الطلب غير صحيحة.'});}
-  const budget=Number(body?.budget),people=Number(body?.people),duration=Number(body?.duration),interests=Array.isArray(body?.interests)?body.interests.map(x=>clean(x,40)).filter(Boolean).slice(0,6):[],notes=clean(body?.notes,240);
-  if(!Number.isFinite(budget)||budget<0||budget>10000||!Number.isInteger(people)||people<1||people>20||![2,4,8,16].includes(duration)||!interests.length)return send(res,422,{error:'تحقق من الميزانية والمدة وعدد الأشخاص واختر اهتماماً واحداً على الأقل.'});
+  const budget=Number(body?.budget),people=Number(body?.people),duration=Number(body?.duration),intent=clean(body?.intent??body?.notes,500),explicit=Array.isArray(body?.interests)?body.interests.map(x=>clean(x,40)).filter(Boolean).slice(0,6):[],interests=inferInterests(intent,explicit);
+  if(!Number.isFinite(budget)||budget<0||budget>10000||!Number.isInteger(people)||people<1||people>20||![2,4,8,16].includes(duration)||intent.length<3)return send(res,422,{error:'اكتب رغبتك وتحقق من الميزانية والمدة وعدد الأشخاص.'});
   const live=await mapPlaces(),normalize=name=>name.toLowerCase().replace(/[|ـًٌٍَُِّْ'’\s-]/g,''),pool=catalog.filter(place=>place.rating>=4).map(local=>{const localName=normalize(local.name),match=live.find(place=>{const mapName=normalize(place.name);return mapName===localName||(Math.min(mapName.length,localName.length)>5&&(mapName.includes(localName)||localName.includes(mapName)));});return match?{...local,lat:match.lat,lon:match.lon,live:true}:local;});
   const availableMinutes=duration*60,maxStops=duration<=2?2:duration<=4?3:duration<=8?4:5;
-  const ranked=pool.map((place,index)=>({...place,score:place.tags.filter(tag=>interests.includes(tag)).length*10+(place.cost*people<=budget?4:-20)+(place.live?3:0)+(index%3)})).sort((a,b)=>b.score-a.score);
+  const ai=await rankWithAI({intent,budget,people,duration,pool}),aiOrder=new Map((ai?.matches||[]).map((match,index)=>[match.id,index]));
+  const ranked=pool.map((place,index)=>({...place,id:`place_${index}`,score:(aiOrder.has(`place_${index}`)?100-aiOrder.get(`place_${index}`)*5:0)+place.tags.filter(tag=>interests.includes(tag)).length*10+(place.cost*people<=budget?4:-20)+(place.live?3:0)+(index%3)})).sort((a,b)=>b.score-a.score);
   const selected=[];let total=0,used=0;
   for(const place of ranked){const cost=place.cost*people;if(selected.length>=maxStops||used+place.minutes>availableMinutes||total+cost>budget)continue;selected.push(place);total+=cost;used+=place.minutes;}
   for(const place of ranked.filter(x=>x.cost===0)){if(selected.length>=2||selected.some(x=>x.name===place.name)||used+place.minutes>availableMinutes)continue;selected.push(place);used+=place.minutes;}
   if(!selected.length)return send(res,422,{error:'الميزانية أو المدة لا تكفيان للاختيارات الحالية. جرّب زيادة المدة أو اختر الأسواق المجانية.'});
-  const stops=selected.map(place=>({name:place.name,type:place.type,area:place.area,minimum_rating:place.rating,estimated_cost:place.cost*people,duration_minutes:place.minutes,lat:place.lat??null,lon:place.lon??null,best_time:place.bestTime||'تحقق قبل الزيارة',reason:place.description||`يناسب اهتمامك بـ${place.tags.find(tag=>interests.includes(tag))||'اكتشاف حائل'}${notes?'، مع مراعاة طلبك: '+notes:''}.`}));
-  const title=interests.length>1?'جولة متنوعة على جوّك':'جولة '+interests[0];
-  const mapped=pool.some(place=>place.live);return send(res,200,{plan:{title,intro:`رتبنا لك ${stops.length} وجهات مختارة ذات قيمة للزيارة، بتقييم ٤ فأعلى، تناسب ${people===1?'زيارتك':`مجموعة من ${people} أشخاص`} ضمن ميزانية ${budget} ريال ومدة ${duration} ساعات.`,estimated_total:total,stops,live:mapped,tip:'التقييمات والأسعار وأوقات العمل قد تتغير؛ افتح المكان في Google Maps وتحقق قبل الانطلاق.'}});
+  const reasons=new Map((ai?.matches||[]).map(match=>[match.id,clean(match.reason,240)]));
+  const stops=selected.map(place=>({name:place.name,type:place.type,area:place.area,minimum_rating:place.rating,estimated_cost:place.cost*people,duration_minutes:place.minutes,lat:place.lat??null,lon:place.lon??null,best_time:place.bestTime||'تحقق قبل الزيارة',reason:reasons.get(place.id)||place.description||`يناسب رغبتك في ${interests[0]||'اكتشاف حائل'}.`}));
+  const title=ai?.title||(interests.length?'جولة على جوّك: '+interests[0]:'جولة مختارة في حائل');
+  const intro=ai?.intro||`رتبنا لك ${stops.length} وجهات من قائمة ذاكرة حائل تناسب طلبك، ضمن ميزانية ${budget} ريال ومدة ${duration} ساعات.`;
+  const mapped=pool.some(place=>place.live);return send(res,200,{plan:{title,intro,estimated_total:total,stops,live:mapped,ai_generated:!!ai,suggestion_source:ai?'ai':'smart_rules',tip:'التقييمات والأسعار وأوقات العمل قد تتغير؛ افتح المكان في Google Maps وتحقق قبل الانطلاق.'}});
 }

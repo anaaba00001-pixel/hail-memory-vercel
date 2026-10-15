@@ -41,6 +41,8 @@
 |---|---|
 | `SUPABASE_URL` | رابط مشروع Supabase الخاص بالمتحف |
 | `SUPABASE_SECRET_KEY` | Secret key من Supabase؛ خاص بالخادم |
+| `GROQ_API_KEY` | مفتاح Groq الخاص بالخادم لتشغيل فهم طلب «وين بتسري؟» |
+| `GROQ_MODEL` | اختياري؛ الافتراضي `qwen/qwen3.8-27b` |
 
 إذا استخدمت المفتاح القديم، استخدم `SUPABASE_SERVICE_ROLE_KEY` بدل SUPABASE_SECRET_KEY؛ لا تضف المفتاحين معًا. لا تضع بادئة NEXT_PUBLIC أو VITE لهذه القيم.
 

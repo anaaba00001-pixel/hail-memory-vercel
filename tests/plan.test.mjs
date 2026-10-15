@@ -9,13 +9,14 @@ function analysis(overrides={}){return{requested_categories:['cafe'],required_fe
 function mockAI(result,{fail=false}={}){
   globalThis.fetch=async url=>{
     if(String(url).includes('overpass-api'))return new Response(JSON.stringify({elements:[]}),{status:200});
+    assert.match(String(url),/^https:\/\/api\.groq\.com\/openai\/v1\/responses$/);
     if(fail)return new Response('unavailable',{status:503});
     return new Response(JSON.stringify({output_text:JSON.stringify(result)}),{status:200});
   };
 }
 
-test.beforeEach(()=>{process.env.OPENAI_API_KEY='test-key';});
-test.after(()=>{delete process.env.OPENAI_API_KEY;});
+test.beforeEach(()=>{process.env.GROQ_API_KEY='test-key';});
+test.after(()=>{delete process.env.GROQ_API_KEY;});
 
 test('quiet coffee without markets returns only the cafe documented as quiet',async()=>{
   mockAI(analysis());
@@ -52,7 +53,7 @@ test('AI connection failure shows an error instead of fallback recommendations',
 });
 
 test('missing AI configuration is explicit and does not run a heuristic fallback',async()=>{
-  delete process.env.OPENAI_API_KEY;
+  delete process.env.GROQ_API_KEY;
   let calls=0;globalThis.fetch=async()=>{calls++;throw new Error('must not call');};
   const result=await call({budget:200,duration:4,people:2,intent:'أبي قهوة هادئة'});
   assert.equal(result.statusCode,503);

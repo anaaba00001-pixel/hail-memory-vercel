@@ -22,20 +22,22 @@
       </div>
       <form id="trip-form" class="planner-form">
         <div class="planner-fields">
-          <label class="field"><span>الميزانية بالريال *</span><input type="number" name="budget" min="0" max="10000" step="10" value="200" required inputmode="numeric"></label>
+          <div class="budget-stack">
+            <label class="field"><span>الميزانية بالريال *</span><input type="number" name="budget" min="0" max="10000" step="10" value="200" required inputmode="numeric"></label>
+            <div class="quick-intents" aria-labelledby="quick-intents-title">
+              <div class="quick-intents-heading"><span id="quick-intents-title">اقتراحات سريعة</span><small>اختر فكرة</small></div>
+              <div class="quick-intents-track">
+                <button type="button" class="quick-intent" data-intent="أبي قهوة هادئة بدون أسواق"><span aria-hidden="true">☕</span>قهوة هادئة</button>
+                <button type="button" class="quick-intent" data-intent="أبي مكان لمشاهدة الغروب والتصوير"><span aria-hidden="true">◐</span>غروب وتصوير</button>
+                <button type="button" class="quick-intent" data-intent="أبي مكان تاريخي بدون أسواق"><span aria-hidden="true">⌂</span>تاريخ بلا أسواق</button>
+                <button type="button" class="quick-intent" data-intent="أبي مكانًا خارجيًا مناسبًا للأطفال"><span aria-hidden="true">✦</span>طلعة مع الأطفال</button>
+                <button type="button" class="quick-intent" data-intent="أبي فطورًا شعبيًا اقتصاديًا"><span aria-hidden="true">◌</span>فطور شعبي</button>
+                <button type="button" class="quick-intent" data-intent="أبي طبيعة ومكانًا للمشي والتصوير"><span aria-hidden="true">♧</span>طبيعة ومشي</button>
+              </div>
+            </div>
+          </div>
           <label class="field"><span>مدة الطلعة</span><select name="duration"><option value="2">ساعتان</option><option value="4" selected>نصف يوم</option><option value="8">يوم كامل</option><option value="16">يومان</option></select></label>
           <label class="field"><span>عدد الأشخاص</span><input type="number" name="people" min="1" max="20" value="2" required inputmode="numeric"></label>
-        </div>
-        <div class="quick-intents" aria-labelledby="quick-intents-title">
-          <div class="quick-intents-heading"><span id="quick-intents-title">اقتراحات سريعة</span><small>اختر فكرة أو اكتب طلبك</small></div>
-          <div class="quick-intents-track">
-            <button type="button" class="quick-intent" data-intent="أبي قهوة هادئة بدون أسواق"><span aria-hidden="true">☕</span>قهوة هادئة</button>
-            <button type="button" class="quick-intent" data-intent="أبي مكان لمشاهدة الغروب والتصوير"><span aria-hidden="true">◐</span>غروب وتصوير</button>
-            <button type="button" class="quick-intent" data-intent="أبي مكان تاريخي بدون أسواق"><span aria-hidden="true">⌂</span>تاريخ بلا أسواق</button>
-            <button type="button" class="quick-intent" data-intent="أبي مكانًا خارجيًا مناسبًا للأطفال"><span aria-hidden="true">✦</span>طلعة مع الأطفال</button>
-            <button type="button" class="quick-intent" data-intent="أبي فطورًا شعبيًا اقتصاديًا"><span aria-hidden="true">◌</span>فطور شعبي</button>
-            <button type="button" class="quick-intent" data-intent="أبي طبيعة ومكانًا للمشي والتصوير"><span aria-hidden="true">♧</span>طبيعة ومشي</button>
-          </div>
         </div>
         <label class="field intent-field"><span>وش ودّك تسوي؟ *</span><textarea name="intent" minlength="3" maxlength="500" rows="3" required placeholder="مثلاً: أبي طلعة هادئة وقت الغروب فيها منظر حلو وقهوة، ومعنا طفلان"></textarea><small>اكتبها بطريقتك؛ نفهم رغبتك ونختار فقط من الأماكن الموجودة لدينا.</small></label>
         <button class="primary planner-submit" type="submit">اقترح لي برنامجاً</button>

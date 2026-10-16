@@ -20,16 +20,6 @@
     "modifications": "Texture images resized to at most 1024px; opaque images recompressed as JPEG quality 92. Geometry unchanged."
   },
   {
-    "file": "decorative_item.glb",
-    "original_bytes": 33547272,
-    "web_bytes": 4706336,
-    "author": "Tamer Qarrain (https://sketchfab.com/tamerq)",
-    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
-    "source": "https://sketchfab.com/3d-models/decorative-item-6959dfcf22064b0baacec06374ed529f",
-    "title": "Decorative Item",
-    "modifications": "Texture images resized to at most 1024px; opaque images recompressed as JPEG quality 92. Geometry unchanged."
-  },
-  {
     "file": "arabic_coffee_cup.glb",
     "original_bytes": 6843632,
     "web_bytes": 411668,

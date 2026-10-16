@@ -8,10 +8,10 @@ const $=id=>document.getElementById(id),canvas=$('viewer');
 const landmarkOrder=['qishlah_palace','aarif_fort','barzan_palace','rashid_bin_layla_palace','jabal_mahaja'];
 const landmarkIds=new Set(landmarkOrder);
 const lifeGroups=[
- {title:'الضيافة والمائدة',ids:['arabic_coffee_cup','mubkhara_arabic','incense_burner_local','teapot','teapot-second','sahn_muftih_low_poly','old_thermos','bowl','red_pottery_plate','old_sweets']},
- {title:'البيت وأدواته',ids:['mortar_and_pestle','iron_box','old_wardrobe','oil_lamp','bridal_bag']},
+ {title:'الضيافة والمائدة',ids:['arabic_coffee_cup','mubkhara_arabic','incense_burner_local','coffee_roaster','rose_water_sprinkler','teapot','teapot-second','sahn_muftih_low_poly','old_thermos','bowl','red_pottery_plate','old_sweets']},
+ {title:'البيت وأدواته',ids:['mortar_and_pestle','iron_box','old_wardrobe','oil_lamp','bridal_bag','hair_cream_glb']},
  {title:'الحِرف والصناعات',ids:['sewing_machine','woven_basket','palm_frond','arabic_sword']},
- {title:'الحياة اليومية',ids:['pager','old_television','pencil_sharpener','old_glue','travel_suitcase']}
+ {title:'الحياة اليومية',ids:['pager','old_television','old_mobile','old_car','pencil_sharpener','old_glue','travel_suitcase']}
 ];
 const featuredOrder=['old_television','incense_burner_local','old_wardrobe','sahn_muftih_low_poly','red_pottery_plate'];
 const featuredIds=new Set(featuredOrder);
@@ -63,7 +63,7 @@ async function select(index){
  for(const key of ['title','subtitle','category','material','description','provenance'])$('item-'+key).textContent=item[key];
  $('position').textContent=`${String(current+1).padStart(2,'0')} / ${String(visible.length).padStart(2,'0')}`;
  $('item-number').textContent=`${activeSection==='landmarks'?'المعلم':'المقتنى'} ${String(current+1).padStart(2,'0')}`;$('item-count').textContent=`${ar.format(current+1)} من ${ar.format(visible.length)}`;
- $('model-credit').textContent='تصميم: '+item.author;$('model-source').href=item.source;const license=$('model-license');license.textContent=item.license;if(item.licenseUrl){license.href=item.licenseUrl;license.removeAttribute('aria-disabled');}else{license.removeAttribute('href');license.setAttribute('aria-disabled','true');}$('model-modifications').textContent=item.modifications;
+ $('model-credit').textContent='تصميم: '+item.author;$('model-source').href=item.source;const contextWrap=$('context-reference-wrap'),contextLink=$('context-reference');contextWrap.hidden=!item.contextSource;if(item.contextSource)contextLink.href=item.contextSource;const license=$('model-license');license.textContent=item.license;if(item.licenseUrl){license.href=item.licenseUrl;license.removeAttribute('aria-disabled');}else{license.removeAttribute('href');license.setAttribute('aria-disabled','true');}$('model-modifications').textContent=item.modifications;
  [...$('collection').querySelectorAll('button')].forEach((b,i)=>b.setAttribute('aria-pressed',String(i===current)));
  $('announcement').textContent=`${item.title}، ${current+1} من ${visible.length}`;
  canvas.setAttribute('aria-label',`${item.title}. اسحب للدوران، واستخدم أزرار التقريب.`);

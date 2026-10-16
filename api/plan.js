@@ -1,5 +1,7 @@
+import { tourismPlaces } from '../public/assets/js/tourism-data.js';
+
 const suppliedRatings={'HAO | هاو':4.4,'مقهى بنشاي':4.4,'سوردز كافيه':4.2,'هاف مليون':4.1,'أجا بارك':4.2,'حديقة السلام':4.4,'حديقة الزيتون':4.3,'منتزه المغواة الترفيهي للاحتفالات':4.2,'متحف حائل الإقليمي':4.4,'مطعم التراثي':4.2,'مطاعم ومطابخ قيصر حائل للأكلات الشعبية':3.7,'مطعم فوال الماقد':3.8,'مطعم القلعة القديمة':4.1};
-const catalog = [
+const legacyCatalog = [
   {name:'قلعة أعيرف',type:'قلعة تاريخية',area:'حائل — لبدة',cost:0,minutes:75,tags:['تاريخ وآثار','تصوير ومناظر جميلة','تجارب عائلية ممتعة'],description:'قلعة طينية مرتفعة تطل على المدينة وتتميز بأبراجها الدفاعية.',bestTime:'قبل الغروب'},
   {name:'قصر القشلة',type:'قصر تاريخي',area:'وسط حائل — المحطة',cost:0,minutes:75,tags:['تاريخ وآثار','تصوير ومناظر جميلة'],description:'مبنى تاريخي من عام 1941م يتميز بساحاته وأبراجه والعمارة النجدية.',bestTime:'الصباح أو العصر'},
   {name:'جبل أم سنمان ونقوش جبة',type:'فنون صخرية وتراث عالمي',area:'جُبّة — شمال غرب حائل',cost:0,minutes:150,tags:['تاريخ وآثار','طبيعة وتصوير','تصوير ومناظر جميلة'],description:'موقع للفنون الصخرية القديمة ضمن قائمة التراث العالمي لليونسكو.',bestTime:'الصباح الباكر'},
@@ -25,6 +27,23 @@ const catalog = [
   {name:'مطعم فوال الماقد',type:'إفطار شعبي',area:'مدينة حائل',cost:25,minutes:50,tags:['أكل محلي'],description:'مطعم إفطار لتجربة الفول والأطباق الصباحية.',bestTime:'الصباح'},
   {name:'مطعم القلعة القديمة',type:'مطعم عائلي',area:'حي المنتزه الغربي — حائل',cost:60,minutes:75,tags:['أكل محلي','تجارب عائلية ممتعة'],description:'مطعم عائلي مناسب لإكمال جولة المدينة.',bestTime:'الغداء أو العشاء'}
 ].map(place=>({...place,rating:suppliedRatings[place.name]??4}));
+
+const tourismKinds={
+  'كافيه':{cost:35,minutes:60,tags:['قهوة ومقاهي'],categories:['cafe'],features:['coffee']},
+  'فطور':{cost:30,minutes:60,tags:['أكل محلي'],categories:['restaurant'],features:['breakfast','local_food']},
+  'عشاء':{cost:65,minutes:75,tags:['أكل محلي'],categories:['restaurant'],features:['local_food']},
+  'متحف':{cost:0,minutes:90,tags:['تاريخ وآثار'],categories:['history','museum'],features:['heritage','educational','indoor']},
+  'سوق شعبي':{cost:0,minutes:75,tags:['أسواق شعبية'],categories:['market'],features:['shopping','heritage']},
+  'تصوير/تراث':{cost:0,minutes:90,tags:['تاريخ وآثار','تصوير ومناظر جميلة'],categories:['history'],features:['heritage','photography','outdoor']},
+  'حديقة/منتزه':{cost:0,minutes:90,tags:['تجارب عائلية ممتعة'],categories:['family','park'],features:['children','outdoor','walking']},
+  'هايكنج':{cost:0,minutes:150,tags:['طبيعة وتصوير'],categories:['nature'],features:['hiking','outdoor','photography']},
+  'إطلالة':{cost:0,minutes:75,tags:['طبيعة وتصوير','تصوير ومناظر جميلة'],categories:['nature','viewpoint'],features:['outdoor','photography','panorama']},
+  'ممشى':{cost:0,minutes:75,tags:['طبيعة وتصوير'],categories:['nature','park'],features:['walking','outdoor']},
+  'وجهة حديثة':{cost:0,minutes:90,tags:['تجارب عائلية ممتعة'],categories:['family'],features:['outdoor','photography']}
+};
+const tourismCatalog=tourismPlaces.map(place=>{const kind=tourismKinds[place.category]||{cost:0,minutes:75,tags:[],categories:[],features:[]};return{name:place.name,type:place.type,area:place.area,cost:kind.cost,minutes:kind.minutes,tags:kind.tags,description:place.description,bestTime:place.notes,rating:null,mapUrl:place.mapUrl,verifiedAt:place.verifiedAt};});
+const tourismNames=new Set(tourismCatalog.map(place=>place.name));
+const catalog=[...tourismCatalog,...legacyCatalog.filter(place=>!tourismNames.has(place.name))];
 
 // حقول المطابقة أدناه حقائق موثقة من وصف كل مكان، وليست استنتاجات وقت الطلب.
 // غياب الصفة يعني أن معلوماتنا لا تكفي لإثباتها، ولذلك لا يطابق المكان طلباً يشترطها.
@@ -54,6 +73,7 @@ const placeEvidence={
   'مطعم فوال الماقد':{categories:['restaurant'],features:['local_food','breakfast','budget_friendly']},
   'مطعم القلعة القديمة':{categories:['restaurant'],features:['children']}
 };
+for(const place of tourismPlaces){const kind=tourismKinds[place.category];if(!kind)continue;const features=[...kind.features];if(/غروب/.test(`${place.description} ${place.activities} ${place.notes}`))features.push('sunset');if(/عائل|أطفال/.test(place.audience))features.push('children');placeEvidence[place.name]={categories:[...kind.categories],features:[...new Set(features)]};}
 const buckets=new Map();
 let mapCache={expires:0,places:[]};
 const send=(res,status,data)=>{res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','private, no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(data));};

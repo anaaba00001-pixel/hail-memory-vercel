@@ -1,4 +1,6 @@
-const hailPlaces = [
+import { tourismPlaces } from './tourism-data.js';
+
+const legacyHailPlaces = [
   { name: 'قلعة أعيرف', category: 'heritage', type: 'قلعة تاريخية', area: 'حائل — لبدة', description: 'قلعة طينية مرتفعة تطل على المدينة، مناسبة للتاريخ والتصوير قبل الغروب.', icon: '🏰', rating: 4.0 },
   { name: 'قصر القشلة', category: 'heritage', type: 'قصر تاريخي', area: 'وسط حائل — المحطة', description: 'معلم من عام 1941م يتميز بساحاته وأبراجه والعمارة النجدية.', icon: '🏯', rating: 4.0 },
   { name: 'جبل أم سنمان ونقوش جبة', category: 'heritage', type: 'تراث عالمي', area: 'جُبّة — شمال غرب حائل', description: 'فنون صخرية قديمة ضمن قائمة التراث العالمي لليونسكو.', icon: '🪨', rating: 4.0 },
@@ -20,6 +22,26 @@ const hailPlaces = [
   { name: 'مطعم القلعة القديمة', category: 'food', type: 'مطعم عائلي', area: 'حي المنتزه الغربي — حائل', description: 'مطعم عائلي مناسب لإكمال جولة المدينة.', icon: '🍲', rating: 4.1 },
 ];
 
+const categoryMap = {
+  'كافيه': ['coffee', '☕'],
+  'فطور': ['food', '🥘'],
+  'عشاء': ['food', '🍽️'],
+  'متحف': ['museum', '🏺'],
+  'سوق شعبي': ['market', '🧺'],
+  'تصوير/تراث': ['heritage', '🏰'],
+  'حديقة/منتزه': ['family', '🌳'],
+  'هايكنج': ['nature', '🥾'],
+  'إطلالة': ['nature', '🌄'],
+  'ممشى': ['nature', '🚶'],
+  'وجهة حديثة': ['family', '✨']
+};
+const databasePlaces = tourismPlaces.map((place) => {
+  const [category, icon] = categoryMap[place.category] || ['all', '📍'];
+  return { ...place, category, originalCategory: place.category, icon, rating: null };
+});
+const databaseNames = new Set(databasePlaces.map((place) => place.name));
+const hailPlaces = [...databasePlaces, ...legacyHailPlaces.filter((place) => !databaseNames.has(place.name))];
+
 const stylesheet = document.createElement('link');
 stylesheet.rel = 'stylesheet';
 stylesheet.href = new URL('../css/places.css', import.meta.url).href;
@@ -35,7 +57,7 @@ if (root) {
     <div class="guide-intro">
       <p class="eyebrow">ما ودّك تحتار؟</p>
       <h2 id="hail-guide-title">اقتراح سريع</h2>
-      <p>اختر نوع الطلعة، ونقترح لك فورًا وجهة مفيدة من حائل بتقييم ٤ فأعلى.</p>
+      <p>اختر نوع الطلعة، ونقترح لك من قاعدة تضم ٨٠ مكانًا في منطقة حائل.</p>
       <div class="guide-filters" role="group" aria-label="نوع المكان">
         <button type="button" data-category="all" aria-pressed="true">كل الأماكن</button>
         <button type="button" data-category="coffee" aria-pressed="false">قهوة</button>
@@ -57,10 +79,11 @@ if (root) {
         <div class="place-actions">
           <button class="primary" id="suggest-place" type="button">اقترح مكانًا آخر</button>
           <a id="place-map" class="map-link" target="_blank" rel="noopener">افتح في الخريطة ↗</a>
+          <a id="place-source" class="map-link" target="_blank" rel="noopener">مصدر المعلومات ↗</a>
         </div>
       </div>
     </article>
-    <p class="guide-note">جميع الاقتراحات داخل منطقة حائل. تحقق من أوقات العمل قبل الزيارة.</p>`;
+    <p class="guide-note">البيانات محققة بتاريخ ١٦ أكتوبر ٢٠٢٦. تبقى المواعيد والأسعار قابلة للتغير؛ تحقق قبل الزيارة.</p>`;
 
   root.append(guide);
 
@@ -71,18 +94,21 @@ if (root) {
   let currentName = '';
 
   function showSuggestion() {
-    const available = hailPlaces.filter((place) => place.rating >= 4 && (category === 'all' || place.category === category));
+    const available = hailPlaces.filter((place) => category === 'all' || place.category === category);
     const choices = available.filter((place) => place.name !== currentName);
     const pool = choices.length ? choices : available;
     const place = pool[Math.floor(Math.random() * pool.length)];
     currentName = place.name;
 
     get('place-icon').textContent = place.icon;
-    get('place-type').textContent = `★ ${place.rating.toFixed(1)} · ${place.type} في حائل`;
+    get('place-type').textContent = place.rating == null ? `${place.originalCategory} · ${place.type}` : `★ ${place.rating.toFixed(1)} · ${place.type} في حائل`;
     get('place-name').textContent = place.name;
     get('place-description').textContent = place.description;
-    get('place-area').textContent = `الموقع: ${place.area}`;
-    get('place-map').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${place.name} ${place.area}`)}`;
+    get('place-area').textContent = `الموقع: ${place.area}${place.scheduleStatus ? ` · ${place.scheduleStatus}` : ''}`;
+    get('place-map').href = place.mapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${place.name} ${place.area}`)}`;
+    const source = get('place-source');
+    source.hidden = !place.sourceUrl;
+    if (place.sourceUrl) { source.href = place.sourceUrl; source.textContent = `${place.sourceType || 'مصدر المعلومات'} ↗`; }
 
     card.classList.remove('is-changing');
     requestAnimationFrame(() => card.classList.add('is-changing'));
@@ -150,7 +176,7 @@ if (tripForm) {
         const type = document.createElement('span'); type.className = 'place-type'; type.textContent = stop.type;
         const title = document.createElement('h3'); title.textContent = stop.name;
         const reason = document.createElement('p'); reason.textContent = stop.reason;
-        const meta = document.createElement('p'); meta.className = 'stop-meta'; meta.textContent = `★ ${stop.minimum_rating || 4}+ · ${stop.area} · ${stop.duration_minutes} دقيقة · نحو ${money.format(stop.estimated_cost)} · أفضل وقت: ${stop.best_time || 'تحقق قبل الزيارة'}`;
+        const meta = document.createElement('p'); meta.className = 'stop-meta'; meta.textContent = [stop.minimum_rating ? `★ ${stop.minimum_rating}+` : null, stop.area, `${stop.duration_minutes} دقيقة`, `نحو ${money.format(stop.estimated_cost)}`, `ملاحظة: ${stop.best_time || 'تحقق قبل الزيارة'}`].filter(Boolean).join(' · ');
         const map = document.createElement('a'); map.className = 'map-link'; map.target = '_blank'; map.rel = 'noopener'; map.textContent = 'افتح في Google Maps ↗'; const query = Number.isFinite(stop.lat) && Number.isFinite(stop.lon) ? `${stop.lat},${stop.lon}` : `${stop.name} ${stop.area}`; map.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
         copy.append(type, title, reason, meta, map); article.append(number, copy); stops.append(article);
       });

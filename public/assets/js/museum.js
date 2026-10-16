@@ -8,12 +8,12 @@ const $=id=>document.getElementById(id),canvas=$('viewer');
 const landmarkOrder=['qishlah_palace','aarif_fort','barzan_palace','rashid_bin_layla_palace','jabal_mahaja'];
 const landmarkIds=new Set(landmarkOrder);
 const lifeGroups=[
- {title:'الضيافة والمائدة',ids:['arabic_coffee_cup','mubkhara_arabic','incense_burner_local','coffee_roaster','rose_water_sprinkler','teapot','teapot-second','sahn_muftih_low_poly','old_thermos','bowl','red_pottery_plate','old_sweets']},
+ {title:'الضيافة والمائدة',ids:['arabic_coffee_cup','mubkhara_arabic','coffee_roaster','rose_water_sprinkler','teapot','teapot-second','sahn_muftih_low_poly','old_thermos','bowl','red_pottery_plate','old_sweets']},
  {title:'البيت وأدواته',ids:['mortar_and_pestle','iron_box','old_wardrobe','oil_lamp','bridal_bag','hair_cream_glb']},
  {title:'الحِرف والصناعات',ids:['sewing_machine','woven_basket','palm_frond','arabic_sword']},
- {title:'الحياة اليومية',ids:['pager','old_television','old_mobile','old_car','pencil_sharpener','old_glue','travel_suitcase']}
+ {title:'الحياة اليومية',ids:['pager','old_television','old_mobile','old_car','pencil_sharpener','travel_suitcase']}
 ];
-const featuredOrder=['old_television','incense_burner_local','old_wardrobe','sahn_muftih_low_poly','red_pottery_plate'];
+const featuredOrder=['old_television','old_wardrobe','sahn_muftih_low_poly','red_pottery_plate'];
 const featuredIds=new Set(featuredOrder);
 const lifeOrder=[...featuredOrder,...lifeGroups.flatMap(group=>group.ids).filter(id=>!featuredIds.has(id))];
 const topicById=new Map(lifeGroups.flatMap(group=>group.ids.map(id=>[id,group.title])));
